@@ -9,21 +9,24 @@
 
  #### Description of Repository
 
- * data folder: contains preprocessed datasets (gene count tables) for patch-seq dataset, FACS dataset, as well as electrophysiology and cell metadata. This folder also contains scRNAseq datasets from previous publications used in QC figures (Enge, et al. dataset, Segerstolpe, et al dataset), as well as siRNA knockdown results.
+ * **data folder**: contains preprocessed datasets (gene count tables) for patch-seq dataset, FACS dataset, as well as electrophysiology and cell metadata. This folder also contains scRNAseq datasets from previous publications used in QC figures (Enge, et al. dataset, Segerstolpe, et al dataset), as well as siRNA knockdown results.
 
- * analysis folder: contains several folders with analysis results used to produce final figures. Data is saved in csv / excel files or pickles for integration with notebooks. Includes:
+ 		- Large files are compressed. Before runnning notebooks unzip compressed data files using command:``` tar -xvzf filename.tar.gz```
 
-- Cell typing for patch-seq, FACS, Enge et al datasets.
-- tSNE coordinates for plots used in manuscript (patch-seq, patched vs non-patched, cryopreserved cells, alpha cells)
-- Machine Learning model for cell type classification based on Electrophysiology.
-- Correlations of gene expression to total exocytosis for beta-cells (nondiabetic, and T2D donors) and pathway analysis
-- Gene Set Enrichment Analysis (GSEA) for genes correlated to each functional group (i.e. Exocytosis, Sodium currents)
-- Correlations using a subset of beta-cells (train/test split) to determine Predictive Set of genes and perform predictions of electrophysiology.
+ * **analysis folder**: contains several folders with analysis results used to produce final figures. Data is saved in csv / excel files or pickles for integration with notebooks. Includes:
 
-* notebooks: Python and R notebooks to generate figures from manuscript and supplementary notebooks to generate results in analysis folders
+		- Cell typing for patch-seq, FACS, Enge et al datasets.
+		- tSNE coordinates for plots used in manuscript (patch-seq, patched vs non-patched, cryopreserved cells, alpha cells)
+		- Machine Learning model for cell type classification based on Electrophysiology.
+		- Correlations of gene expression to total exocytosis for beta-cells (nondiabetic, and T2D donors) and pathway analysis
+		- Gene Set Enrichment Analysis (GSEA) for genes correlated to each functional group (i.e. Exocytosis, Sodium currents)
+		- Correlations using a subset of beta-cells (train/test split) to determine Predictive Set of genes and perform predictions of electrophysiology.
 
-* functions: Helper functions to run
+* **notebooks**: Python and R notebooks to generate figures from manuscript and supplementary notebooks to generate results in analysis folders
 
-* figures: Figures produced in notebooks
+* **functions**: Helper functions to run
 
-* resources: databases and resources used in notebooks
+* **figures**: Figures produced in notebooks
+
+* **resources**: databases and resources used in notebooks. Before runnning notebooks unzip compressed data files using command:``` tar -xvzf filename.tar.gz```
+
