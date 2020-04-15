@@ -3,7 +3,6 @@ data/patchclamp_FACS_human.counts.tab
 data/Sandberg_pancreas_refseq_rpkms_counts_3514sc.txt
 data/patchclamp_wcryo_human.counts.tab
 data/Enge.csv
-analysis/correlations_betacell/
 dataEnge.csv
 resources/GO_human.tsv
 
