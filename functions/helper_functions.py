@@ -24,7 +24,7 @@ def get_number_genes_observed(Dataset, min_counts=4):
 
 def ensembletable_curate(df_ensemble_gene, remove_none=True, append_dups=True):
     '''takes a dataframe containing index (ensembleID) and column with genenames (GeneName)
-    and returns a new dataframe where all nones in genename are replaced by EnsembleID and repeated 
+    and returns a new dataframe where all nones in genename are replaced by EnsembleID and repeated
     genes are made unique by appending EnsemblID'''
     df = df_ensemble_gene.copy()
     if remove_none is True:
@@ -53,7 +53,7 @@ def get_qc_table_df(df, translation_dict=None):
     translation_dict: Dictionary were keys are ensemble IDs and values are gene names
     store in column GeneName. If None, translation is not done
     '''
-    if translation_dict:        
+    if translation_dict:
         counts = df.rename(index=translation_dict,inplace=False)
     else:
         counts = df.copy()
@@ -61,16 +61,16 @@ def get_qc_table_df(df, translation_dict=None):
     total_counts = counts.sum(axis=0)
     #count mapped
     searchfor = ['^__', 'NIST_ConsensusVector']
-    mapped_counts = counts[~counts.index.str.contains('|'.join(searchfor))].sum(axis=0) 
+    mapped_counts = counts[~counts.index.str.contains('|'.join(searchfor))].sum(axis=0)
     #count ERCC
-    ERCC_counts = counts[counts.index.str.contains('^ERCC-')].sum(axis=0) 
+    ERCC_counts = counts[counts.index.str.contains('^ERCC-')].sum(axis=0)
     #n_genes_thres
     searchfor = ['^__', 'NIST_ConsensusVector','^ERCC-']
     human_counts = counts[~counts.index.str.contains('|'.join(searchfor))]
     n_genes_3 = (human_counts > 3).sum(axis=0)
     n_genes_1 = (human_counts > 1).sum(axis=0)
     #mithocondrial counts
-    mito_counts = counts[counts.index.str.contains('^MT-')].sum(axis=0) 
+    mito_counts = counts[counts.index.str.contains('^MT-')].sum(axis=0)
 
     c_qc = pd.concat([counts.sum(axis=0),
         100 * mapped_counts / total_counts,
@@ -87,14 +87,14 @@ def get_qc_table_df(df, translation_dict=None):
     return c_qc
 
 
-#fabio ds function
+#qc function
 def get_qc_table(Dataset, min_counts_genes=4, translation_dict=None):
     '''Dataset: A singlet dataset
     mithocondrial: whether to count mithocondrial genes True/False
     translation_dict: Dictionary were keys are ensemble IDs and values are gene names
     store in column GeneName. If None, translation is not done
     '''
-    if translation_dict:        
+    if translation_dict:
         counts = Dataset.counts.rename(index=translation_dict,inplace=False)
     else:
         counts = Dataset.counts
@@ -123,8 +123,8 @@ def plot_qc_basic(qc_table, title,size_swarm=2):
     ax = sns.violinplot(data=qc_table.loc[:,qc_table.columns.str.contains('percent')], scale='width',inner=None)
     color_palette = sns.color_palette(['#FFF3AA'])
     sns.swarmplot(data=qc_table.loc[:,qc_table.columns.str.contains('percent')],
-            palette=color_palette, 
-            size=size_swarm, 
+            palette=color_palette,
+            size=size_swarm,
             ax=ax)
     ax.set_xticklabels(['mapped','ERCC','human','mithocondrial', 'multimapped', 'unmapped'])
     ax.set_ylabel('percentage')
@@ -175,14 +175,14 @@ def samplesheet_add_feature(ds, name_feat=None, query_dict_counts=None, query_di
     localdict: local_dict (dict): A dictionary of local variables, useful if you are using
      @var assignments in your expression. By far the  most common usage of this argument is
       to set local_dict=locals()
-    the counts_table based on count expression values and the value is the name of the 
+    the counts_table based on count expression values and the value is the name of the
     cell type (value to be added to new samplesheet column.
     Example For alpha and beta cells: name_feat ='cell_type_ge'
     query_dict= {'INS > 3 & GCG < 3': 'beta', 'INS < 3 & GCG > 3':'alpha'}
     '''
     #initialize new column with NaNs
     ds.samplesheet[name_feat] = np.nan
-    
+
     if query_dict_counts:
         for condition, ct in query_dict_counts.items():
             cells_names = ds.query_samples_by_counts(condition, inplace=False, local_dict=local_dict).samplenames
@@ -192,7 +192,7 @@ def samplesheet_add_feature(ds, name_feat=None, query_dict_counts=None, query_di
         for condition, ct in query_dict_metadata.items():
             cells_names = ds.query_samples_by_metadata(condition, inplace=False, local_dict=local_dict).samplenames
             ds.samplesheet.loc[cells_names,name_feat] = ct
-        
+
     return ds
 
 
@@ -215,11 +215,11 @@ def add_column_based_gene_expression(dataset, gene, threshold=0, new_col_name=No
     ds1 = dataset.copy()
     if new_col_name is None:
         new_col_name = 'gene_group_'+gene
-    
+
     name_above = gene + '+'
     name_below = gene + '-'
 
-    ds1.samplesheet.loc[(ds1.counts.loc[gene,:] > threshold),new_col_name] = name_above 
+    ds1.samplesheet.loc[(ds1.counts.loc[gene,:] > threshold),new_col_name] = name_above
     ds1.samplesheet.loc[(ds1.counts.loc[gene,:] < threshold), new_col_name] = name_below
     return ds1
 
@@ -233,11 +233,11 @@ def add_column_based_phenotype(dataset, phenotype, threshold=0, new_col_name=Non
     ds1 = dataset.copy()
     if new_col_name is None:
         new_col_name = 'pheno_group_'+phenotype
-    
+
     name_above = phenotype + '1'
     name_below = phenotype + '2'
 
-    ds1.samplesheet.loc[(ds1.samplesheet.loc[:,phenotype] > threshold),new_col_name] = name_above 
+    ds1.samplesheet.loc[(ds1.samplesheet.loc[:,phenotype] > threshold),new_col_name] = name_above
     ds1.samplesheet.loc[(ds1.samplesheet.loc[:,phenotype] < threshold), new_col_name] = name_below
     return ds1
 
@@ -248,13 +248,13 @@ def add_column_based_phenotype(dataset, phenotype, threshold=0, new_col_name=Non
 #function to export stats of groups when splitting dataset for DE
 def export_filter_conditions(df_mdata,filter_dict1,filter_dict2,filename_out='/Users/joan/Desktop/last_DEcompare.xlsx'):
     writer = pd.ExcelWriter(path=filename_out)
-    filter_dict1 = pd.DataFrame.from_dict(filter_dict1, orient='index')  
+    filter_dict1 = pd.DataFrame.from_dict(filter_dict1, orient='index')
     header1 = [''] * filter_dict1.shape[1]
     header1[0] = 'Group 1 filtering'
     filter_dict1.to_excel(writer, sheet_name='stats',startcol=0,header=header1)
     #move savin position in excel
     n_cols = filter_dict1.shape[1] + 2
-    filter_dict2 = pd.DataFrame.from_dict(filter_dict2, orient='index')    
+    filter_dict2 = pd.DataFrame.from_dict(filter_dict2, orient='index')
     header2 = [''] * filter_dict2.shape[1]
     header2[0] = 'Group 2 filtering'
     filter_dict2.to_excel(writer, sheet_name='stats', startcol=n_cols,header=header2)
@@ -271,18 +271,18 @@ def export_filter_conditions(df_mdata,filter_dict1,filter_dict2,filename_out='/U
 
 
 ########
-# DE functions or percent 
+# DE functions or percent
 ########
 
-def DE_presplited(ds1, ds2, ids=['g1','g2'], min_cells=10, 
-    min_mean_counts=0, 
-    column=None, 
+def DE_presplited(ds1, ds2, ids=['g1','g2'], min_cells=10,
+    min_mean_counts=0,
+    column=None,
     method='mann-whitney',
-    min_log2FC=0.25, 
+    min_log2FC=0.25,
     min_pct_diff = 0.1,
     min_pct_one_group= 0.1,
     min_pct_ratio=0.1,
-    logbase=2, 
+    logbase=2,
     pseudocount=1):
     '''Does DE in dataset base in one column samplesheet, only works for two classes in column'''
     from statsmodels.sandbox.stats.multicomp import multipletests
@@ -307,18 +307,18 @@ def DE_presplited(ds1, ds2, ids=['g1','g2'], min_cells=10,
     percent_diff = pct1 - pct2
     percent_diff.rename('pct_diff', inplace=True)
     #percent ratio: (p1-p2) / max(p1,p2) : to test for bimodal expression
-    pct_max = np.max([pct1,pct2],axis=0)    
+    pct_max = np.max([pct1,pct2],axis=0)
     pct_rat = np.abs(percent_diff) / pct_max
     #merge stats
     names = ['log2_FC', 'pct_diff', str('pct_'+ids[0]),str('pct_'+ids[1]),'pct_ratio',str('log2_mean_'+ids[0]),str('log2_mean_'+ids[1])]
     results = pd.concat([logFC,percent_diff,pct1,pct2,pct_rat,logFC1,logFC2], keys=names, axis=1)
     #filter genes that are unlikely to be DE before testing
     cond1 = np.abs(results['log2_FC']) > min_log2FC
-    cond2 = np.abs(results['pct_diff']) > min_pct_diff 
+    cond2 = np.abs(results['pct_diff']) > min_pct_diff
     cond3 = ((np.abs(results['pct_'+ids[0]]) > min_pct_one_group) | (np.abs(results['pct_'+ids[1]]) > min_pct_one_group))
     cond4 = np.abs(results['pct_ratio']) > min_pct_ratio
     genes_test = results[cond1 & cond2 & cond3 & cond4].index.values
-    
+
     g1.counts = g1.counts.loc[genes_test,:]
     g2.counts = g2.counts.loc[genes_test,:]
 
@@ -331,20 +331,20 @@ def DE_presplited(ds1, ds2, ids=['g1','g2'], min_cells=10,
 
     DE_genes = DE_genes.join(results)
 
-    return DE_genes   
+    return DE_genes
 
 
 
 def DE_metadata(ds,
-    column=None, 
-                min_cells=10, 
-    min_mean_counts=0, 
+    column=None,
+                min_cells=10,
+    min_mean_counts=0,
     method='mann-whitney',
-    min_log2FC=0.25, 
+    min_log2FC=0.25,
     min_pct_diff = 0.1,
     min_pct_one_group= 0.1,
     min_pct_ratio=0.1,
-    logbase=2, 
+    logbase=2,
     pseudocount=1):
     '''Does DE in dataset base in one column samplesheet, only works for two classes in column'''
     from statsmodels.sandbox.stats.multicomp import multipletests
@@ -374,18 +374,18 @@ def DE_metadata(ds,
     percent_diff = pct1 - pct2
     percent_diff.rename('pct_diff', inplace=True)
     #percent ratio: (p1-p2) / max(p1,p2) : to test for bimodal expression
-    pct_max = np.max([pct1,pct2],axis=0)    
+    pct_max = np.max([pct1,pct2],axis=0)
     pct_rat = np.abs(percent_diff) / pct_max
     #merge stats
     names = ['log2_FC', 'pct_diff', str('pct_'+ids[0]),str('pct_'+ids[1]),'pct_ratio',str('log2_mean_'+ids[0]),str('log2_mean_'+ids[1])]
     results = pd.concat([logFC,percent_diff,pct1,pct2,pct_rat,logFC1,logFC2], keys=names, axis=1)
     #filter genes that are unlikely to be DE before testing
     cond1 = np.abs(results['log2_FC']) > min_log2FC
-    cond2 = np.abs(results['pct_diff']) > min_pct_diff 
+    cond2 = np.abs(results['pct_diff']) > min_pct_diff
     cond3 = ((np.abs(results['pct_'+ids[0]]) > min_pct_one_group) | (np.abs(results['pct_'+ids[1]]) > min_pct_one_group))
     cond4 = np.abs(results['pct_ratio']) > min_pct_ratio
     genes_test = results[cond1 & cond2 & cond3 & cond4].index.values
-    
+
     g1.counts = g1.counts.loc[genes_test,:]
     g2.counts = g2.counts.loc[genes_test,:]
 
@@ -398,7 +398,7 @@ def DE_metadata(ds,
 
     DE_genes = DE_genes.join(results)
 
-    return DE_genes   
+    return DE_genes
 
 def log_FC(ds1, ds2, logbase=2, pseudocount=1):
     ''' calculate logFC of dataset '''
@@ -438,7 +438,7 @@ def percent_genes_observed(dataset, genelist=None , threshold=0, sample_label='n
     ds =dataset.copy()
     if genelist:
         ds.counts = ds.counts.loc[genelist,:]
-        
+
     res = (ds.counts > threshold).sum(axis=1) / (ds.counts).count(axis=1)
     res = pd.DataFrame(res,columns=['percent'])
     res['errauthoror'] = np.sqrt((ds.counts >0).sum(axis=1)) / (ds.counts).count(axis=1)
@@ -498,7 +498,7 @@ def pval_correlate(dataset, genes, phenotype, method='spearman', p_onesided=Fals
     #read dataset counts for gene
     out = {}
     for gene in genes:
-        
+
         #read gene correlations and array with phenotype
         x = np.array([ds.counts.loc[gene].values])
         y = ds.samplesheet.loc[:, [phenotype]]
@@ -508,11 +508,11 @@ def pval_correlate(dataset, genes, phenotype, method='spearman', p_onesided=Fals
         corr = correlate(x=x, y=y, method=method)
         #FIXME, picks element of array when doing correlation one gene at a time
         corr = corr[0][0]
-        
+
         #if gene is nan output standard values and jump to next gene
         if np.isnan(corr):
             out[gene] = { 'correlation': corr , 'pval': 1, 'pval_err':  1, 'permutations': 0 }
-        
+
         else:
 
             #calculate matrix x with repeats of gene expression and shuffle cells
@@ -542,15 +542,15 @@ def pval_correlate(dataset, genes, phenotype, method='spearman', p_onesided=Fals
                 #calculate standard deviation
                 se= np.sqrt(p_val*(1-p_val)/n_perm)
 
-                #if p_val is determined with good error stop else update value for next round 
+                #if p_val is determined with good error stop else update value for next round
                 if(se < 0.25 * p_val):
                     break
                 else:
                     n_perm = n_perm * 10
 
-            #save correlations and pvalues       
+            #save correlations and pvalues
             out[gene] = { 'correlation': corr , 'pval': p_val, 'pval_err':  se, 'permutations': n_perm }
-    
+
     #make final pandas df and return
     dfout = pd.DataFrame.from_dict(out,orient='index')
     return(dfout)
@@ -561,7 +561,7 @@ def pval_correlate(dataset, genes, phenotype, method='spearman', p_onesided=Fals
 #####
 
 
-def correlate_plots_sorted_collapsed(df, 
+def correlate_plots_sorted_collapsed(df,
     figsize=(20,10),
     xlim=(-1000,38000),
     legend_cols=3,
@@ -569,7 +569,7 @@ def correlate_plots_sorted_collapsed(df,
     bbox_to_anchor=(0., 1.02, 1., .102)):
     '''
     Plots ordered correlations for all phenotypes after doing correlate
-    Takes Dataframe and for each column sorts values and makes 
+    Takes Dataframe and for each column sorts values and makes
     xlim: range of genes to plt and order
     ncols: number of columns in legensd
 
@@ -582,7 +582,7 @@ def correlate_plots_sorted_collapsed(df,
     return ax
 
 
-def correlate_plots_sorted_subplots(df, 
+def correlate_plots_sorted_subplots(df,
     figsize=(40,20),
     subplots_rows=4,
     subplots_cols=6,
@@ -647,7 +647,7 @@ def correlate_plots_scatter_subplots(Dataset,
     '''
     import matplotlib as mpl
     from matplotlib import cm
-    
+
     #set multiplot
     fig,axs = plt.subplots(nrows=subplots_rows,
         ncols=subplots_cols,
@@ -659,7 +659,7 @@ def correlate_plots_scatter_subplots(Dataset,
 
     ds = Dataset.copy()
     #remove all na in phenotype variable. otherwise fills with zero!!
-    ds.samplesheet = ds.samplesheet.loc[ds.samplesheet[phenotype].dropna().index]    
+    ds.samplesheet = ds.samplesheet.loc[ds.samplesheet[phenotype].dropna().index]
     #make plot for each gene in dataframe dfcorr and plot correlation value
     for i,gene in enumerate(dfcorr.index):
         s1 = ds.samplesheet[phenotype]
@@ -670,39 +670,39 @@ def correlate_plots_scatter_subplots(Dataset,
         #vec.dropna(axis=0, how='any',inplace=True)
 
         if color_gene_name:
-            axs[i] = ds.plot.scatter_reduced_samples(vectors_reduced=vec, 
-                ax=axs[i], color_by=color_gene_name, 
-                s=dotsize, 
+            axs[i] = ds.plot.scatter_reduced_samples(vectors_reduced=vec,
+                ax=axs[i], color_by=color_gene_name,
+                s=dotsize,
                 alpha=alpha,
                 cmap=cmap)
         else:
-            axs[i] = ds.plot.scatter_reduced_samples(vectors_reduced=vec, 
-                ax=axs[i], color_by=color_phenotype, 
-                s=dotsize, 
+            axs[i] = ds.plot.scatter_reduced_samples(vectors_reduced=vec,
+                ax=axs[i], color_by=color_phenotype,
+                s=dotsize,
                 cmap=cmap,
                 alpha=alpha)
         #remove labels as they are many times long and mess up subplots, leave as title
         axs[i].set_xlabel('')
 
          #write value of correlation
-        if pval == True:   
+        if pval == True:
             axs[i].text(0.67, 0.2, 'r= {:1.2f}'.format(dfcorr.loc[gene,'correlation']), transform=axs[i].transAxes)
             axs[i].text(0.65, 0.1, r'$p_{{val}}$= {:.1g}'.format(dfcorr.loc[gene,'pval']), transform=axs[i].transAxes)
         else:
             axs[i].text(0.67, 0.2, 'r= {:1.2f}'.format(dfcorr.loc[gene]), transform=axs[i].transAxes)
-     
-    ##prepare colorbar outside    
+
+    ##prepare colorbar outside
     if color_gene_name:
         if isinstance(cmap, str):
             cmap = cm.get_cmap(cmap)
 
         #set normalization range for ColorBar masking potential NaN Values
-        color_data = ds.counts.loc[color_gene_name]  
+        color_data = ds.counts.loc[color_gene_name]
         if np.isnan(color_data.values).any():
             unmask = ~np.isnan(color_data.values)
         else:
             unmask = np.ones(len(color_data), bool)
-                 
+
         cd_min = color_data.values[unmask].min()
         cd_max = color_data.values[unmask].max()
 
@@ -718,35 +718,35 @@ def correlate_plots_scatter_subplots(Dataset,
             is_numeric = False
         else:
             is_numeric = np.issubdtype(color_data.dtype, np.number)
-        #just to verify we print the result, so we can compare with ds result of plot 
+        #just to verify we print the result, so we can compare with ds result of plot
         print('PHENOTYPE IS OF TYPE NUMERIC (False means categorycal):' + str(is_numeric))
 
         #categorycal type receives a list of colors
         if not is_numeric:
             cd_unique = list(np.unique(color_data.values))
-            c_unique = cmap(np.linspace(0, 1, len(cd_unique)))  
+            c_unique = cmap(np.linspace(0, 1, len(cd_unique)))
         #numerical type is done as in gene expression
         else:
             if np.isnan(color_data.values).any():
                 unmask = ~np.isnan(color_data.values)
             else:
                 unmask = np.ones(len(color_data), bool)
-                 
+
             cd_min = color_data.values[unmask].min()
             cd_max = color_data.values[unmask].max()
 
             norm = mpl.colors.Normalize(vmin=cd_min, vmax=cd_max)
 
-        #norm = mpl.colors.Normalize(vmin=cd_min, vmax=cd_max)    
-        
+        #norm = mpl.colors.Normalize(vmin=cd_min, vmax=cd_max)
+
     #make colorbar
     if color_gene_name:
             sm = plt.cm.ScalarMappable(norm=norm, cmap=cmap)
             sm._A = []
             label_colorbar = color_gene_name+", $\log_{10}\mathrm{cpm}$"
-            plt.colorbar(sm, 
-                cax=fig.add_axes((1, 0.6,0.01,0.2)), 
-                label=label_colorbar, 
+            plt.colorbar(sm,
+                cax=fig.add_axes((1, 0.6,0.01,0.2)),
+                label=label_colorbar,
                 ticks=[0,1,2,3,4,5,6])
     #add colorbar if phenotype is numeric (not categorical):
     if color_phenotype:
@@ -754,8 +754,8 @@ def correlate_plots_scatter_subplots(Dataset,
             sm = plt.cm.ScalarMappable(norm=norm, cmap=cmap)
             sm._A = []
             label_colorbar = color_phenotype
-            plt.colorbar(sm, 
-                cax=fig.add_axes((1, 0.6,0.01,0.2)), 
+            plt.colorbar(sm,
+                cax=fig.add_axes((1, 0.6,0.01,0.2)),
                 label=label_colorbar)
                 #ticks=[0,1,2,3,4,5,6])
             #cbar.ax.set_xticklabels(['Low', 'Medium', 'High'])
@@ -787,11 +787,11 @@ def make_colormap_from_colorlist(list_colors=['#deebf7', '#08306b'],
     return LinearSegmentedColormap.from_list('my_cmap', list_colors, N=bins)
 
 
-def make_binning_phenotype(df, column, 
-    log=False, bins= 5, vmin=None, 
-    vmax=None, 
-    decimals=1, 
-    labels=None, 
+def make_binning_phenotype(df, column,
+    log=False, bins= 5, vmin=None,
+    vmax=None,
+    decimals=1,
+    labels=None,
     nan_value=None):
     '''returns s, bins(new column with binned data, bins in data)
     bins : number of bins or list with intervals to set up bins (in that case provide labels)
@@ -818,14 +818,14 @@ def make_binning_phenotype(df, column,
         vmax = np.amax(ny)
         vmax = round(vmax +0.5)
 
-    s, bins =pd.cut(ny, bins=bins, 
+    s, bins =pd.cut(ny, bins=bins,
         include_lowest=True, retbins=True, labels= labels)
-    
+
     if labels:
         if nan_value:
             s = s.cat.add_categories([nan_value])
             s = s.fillna(nan_value)
-    
+
     if not labels:
         mid = [(a + b) /2 for a,b in zip(bins[:-1], bins[1:])]
 
@@ -835,7 +835,7 @@ def make_binning_phenotype(df, column,
             s = s.cat.add_categories([nan_value])
             s = s.fillna(nan_value).astype('float').round(decimals=decimals)
             bins = np.insert(bins, 0, nan_value, axis=0)
-        
+
     return s, bins
 
 #make tags
@@ -866,14 +866,14 @@ def shiftedColorMap(cmap, start=0, midpoint=0.5, stop=1.0, name='shiftedcmap'):
     Function to offset the "center" of a colormap. Useful for
     data with a negative min and positive max and you want the
     middle of the colormap's dynamic range to be at zero
-    
+
     Input
     -----
       cmap : The matplotlib colormap to be altered
       start : Offset from lowest point in the colormap's range.
           Defaults to 0.0 (no lower ofset). Should be between
           0.0 and 1.0.
-      midpoint : The new center of the colormap. Defaults to 
+      midpoint : The new center of the colormap. Defaults to
           0.5 (no shift). Should be between 0.0 and 1.0. In
           general, this should be  1 - vmax/(vmax + abs(vmin))
           For example if your data range from -15.0 to +5.0 and
@@ -893,16 +893,16 @@ def shiftedColorMap(cmap, start=0, midpoint=0.5, stop=1.0, name='shiftedcmap'):
         'blue': [],
         'alpha': []
     }
-      
+
     # regular index to compute the colors
     reg_index = np.linspace(start, stop, 257)
 
     # shifted index to match the data
     shift_index = np.hstack([
-        np.linspace(0.0, midpoint, 128, endpoint=False), 
+        np.linspace(0.0, midpoint, 128, endpoint=False),
         np.linspace(midpoint, 1.0, 129, endpoint=True)
     ])
-    
+
     for ri, si in zip(reg_index, shift_index):
         r, g, b, a = cmap(ri)
 
@@ -910,7 +910,7 @@ def shiftedColorMap(cmap, start=0, midpoint=0.5, stop=1.0, name='shiftedcmap'):
         cdict['green'].append((si, g, g))
         cdict['blue'].append((si, b, b))
         cdict['alpha'].append((si, a, a))
-        
+
     newcmap = matplotlib.colors.LinearSegmentedColormap(name, cdict)
     plt.register_cmap(cmap=newcmap)
 
@@ -939,7 +939,7 @@ def plots_scatter_tsne_genes(Dataset,
     from mpl_toolkits.axes_grid1 import make_axes_locatable
     from textwrap import wrap
     import re
-    
+
     #set multiplot
     fig,axs = plt.subplots(nrows=subplots_rows,
         ncols=subplots_cols,
@@ -957,9 +957,9 @@ def plots_scatter_tsne_genes(Dataset,
     #make plot for each gene in dataframe dfcorr and plot correlation value
     for i,gene in enumerate(gene_list):
 
-        axs[i] = ds.plot.scatter_reduced_samples(vectors_reduced=vec, 
-            ax=axs[i], color_by=gene, 
-            s=dotsize, 
+        axs[i] = ds.plot.scatter_reduced_samples(vectors_reduced=vec,
+            ax=axs[i], color_by=gene,
+            s=dotsize,
             alpha=alpha,
             cmap=cmap)
 
@@ -975,13 +975,13 @@ def plots_scatter_tsne_genes(Dataset,
         axs[i] = divider.append_axes('right', size='10%', pad=0.05)
 
 
-        color_data = ds.counts.loc[gene]  
+        color_data = ds.counts.loc[gene]
         if np.isnan(color_data.values).any():
             unmask = ~np.isnan(color_data.values)
         else:
             unmask = np.ones(len(color_data), bool)
-            
-         
+
+
         cd_min = color_data.values[unmask].min()
         cd_max = color_data.values[unmask].max()
 
@@ -991,13 +991,13 @@ def plots_scatter_tsne_genes(Dataset,
         mpl.colorbar.ColorbarBase(axs[i], cmap=cmap, norm=norm, orientation='vertical',label='log10(cpm)')
         n=i+1
         #phenotypes now
-        
+
             #make plot for each gene in dataframe dfcorr and plot correlation value
     for i,gene in enumerate(phenotype_list):
         i=n+i
-        axs[i] = ds.plot.scatter_reduced_samples(vectors_reduced=vec, 
-            ax=axs[i], color_by=gene, 
-            s=dotsize, 
+        axs[i] = ds.plot.scatter_reduced_samples(vectors_reduced=vec,
+            ax=axs[i], color_by=gene,
+            s=dotsize,
             alpha=alpha,
             cmap=cmap)
 
@@ -1013,13 +1013,13 @@ def plots_scatter_tsne_genes(Dataset,
         axs[i] = divider.append_axes('right', size='10%', pad=0.05)
 
 
-        color_data = ds.samplesheet.loc[:,gene]  
+        color_data = ds.samplesheet.loc[:,gene]
         if np.isnan(color_data.values).any():
             unmask = ~np.isnan(color_data.values)
         else:
             unmask = np.ones(len(color_data), bool)
-            
-         
+
+
         cd_min = color_data.values[unmask].min()
         cd_max = color_data.values[unmask].max()
 
@@ -1050,7 +1050,7 @@ def plots_scatter_tsne_genes(Dataset,
 def get_informative_correlated_genes(df, cell_types=None, top_genes=None, threshold=0.55):
     '''
     Calculate euclidean distance of correlation of each gene to multiple phenotypes to pick features that
-    are outside a hypersphere of a given threshold and that might be correlated to the features. Otherwise 
+    are outside a hypersphere of a given threshold and that might be correlated to the features. Otherwise
     just pick genes furthest apart
 
     df: contains correlation of genes (rows) to phenotype for one or multiple subcategories (i.e. cell types)
@@ -1058,9 +1058,9 @@ def get_informative_correlated_genes(df, cell_types=None, top_genes=None, thresh
 
     cell_types: List of columns used to calculate distance, if None columns all columns are used
 
-    top_genes: Integer value of top genes to highlight instead of constant threshold distance. 
+    top_genes: Integer value of top genes to highlight instead of constant threshold distance.
 
-    threshold: If top_genes is None,use this distance threshold to 0,0 to highlight all genes above. 
+    threshold: If top_genes is None,use this distance threshold to 0,0 to highlight all genes above.
 
 
 
@@ -1079,25 +1079,25 @@ def get_informative_correlated_genes(df, cell_types=None, top_genes=None, thresh
     return df_dist[df_dist>threshold]
 
 
-def plot_informative_correlated_genes(df, cell_types = None, top_genes=40, threshold = 0.5, 
-    additional_genes = None, figsize=(12, 12), kind='scatter', fontsize='12',dot_size=120, title=None, 
+def plot_informative_correlated_genes(df, cell_types = None, top_genes=40, threshold = 0.5,
+    additional_genes = None, figsize=(12, 12), kind='scatter', fontsize='12',dot_size=120, title=None,
     fontsize_axis= 20, fontsize_labels=13, alpha=0.1):
     '''
     Takes a df containing two or multiple correlations for a gene list (rows)
     and plots scatter plot for two selected columns (cell_types) of correlations.
-    cell_types: two columns of dataframe (can be cell types or phenotypes...) 
+    cell_types: two columns of dataframe (can be cell types or phenotypes...)
     Highlights top 5 correlated and anticorrelated genes for each cell_type in red.
     threshold: Highlights genes that have distance greater than threshold from 0,0 correlation in blue
-    and adds name. 
+    and adds name.
     additional_genes: list with additional genes to highlight
     '''
     from adjustText import adjust_text
 
     mpl.rcParams['xtick.labelsize'] = fontsize_axis
-    mpl.rcParams['ytick.labelsize'] = fontsize_axis 
-    mpl.rcParams['axes.titlesize'] = fontsize_axis 
-    mpl.rcParams['axes.labelsize'] = fontsize_axis 
-    
+    mpl.rcParams['ytick.labelsize'] = fontsize_axis
+    mpl.rcParams['axes.titlesize'] = fontsize_axis
+    mpl.rcParams['axes.labelsize'] = fontsize_axis
+
     #function only plots 2D correlation of features
     if (len(df.columns) is not 2) and (len(cell_types) is not 2):
         raise ValueError('Plot requires 2 columns of feature correlations to plot 2D plot')
@@ -1108,7 +1108,7 @@ def plot_informative_correlated_genes(df, cell_types = None, top_genes=40, thres
 
     #pick genes that have a highest distance to zero (either top_genes or use threshold in radius)
     df_features = get_informative_correlated_genes(df, top_genes=top_genes, threshold=threshold)
-    list_feat_rad = df_features.index.tolist() 
+    list_feat_rad = df_features.index.tolist()
     df_feat_rad = df.loc[df_features.index,:]
 
 
@@ -1120,14 +1120,14 @@ def plot_informative_correlated_genes(df, cell_types = None, top_genes=40, thres
     #select unique genes
     list_feat_xy = np.unique(list_feat_xy)
     #select features to plot as most correlated and anticorrelated to each axis
-    df_feat_xy = df.loc[list_feat_xy,:]    
+    df_feat_xy = df.loc[list_feat_xy,:]
 
 
     #finally add list of manually highlighted genes
-    
+
     if additional_genes:
         list_additional = list(set(additional_genes).intersection(df.index.tolist()))
-        df_feat_add = df.loc[list_additional,:] 
+        df_feat_add = df.loc[list_additional,:]
     else:
         list_additional = []
 
@@ -1139,7 +1139,7 @@ def plot_informative_correlated_genes(df, cell_types = None, top_genes=40, thres
     df_labels = df.loc[labels_list,:]
 
     fig, ax = plt.subplots(figsize=figsize)
-    
+
     #Plot all correlations
     ax = df.plot(df.columns[0], df.columns[1], kind=kind, ax=ax, s=dot_size, linewidth=0,color='gray', alpha=alpha)
     #ax = sns.kdeplot(df.columns[0], df.columns[1], ax=ax)
@@ -1156,7 +1156,7 @@ def plot_informative_correlated_genes(df, cell_types = None, top_genes=40, thres
     ax.set_ylabel("Correlation, " + df.columns[1])
     ax.set_ylim(-1.,1.)
     ax.set_xlim(-1.,1.)
-    
+
     texts = []
     #where k is the index (gene name) and v are the columns (correlation values for each axis to plot)
     for  k, v in df_labels.iterrows():
@@ -1170,8 +1170,8 @@ def plot_informative_correlated_genes(df, cell_types = None, top_genes=40, thres
 
 ########
 
-def plot_scatter_highlight(df, xcol = None, ycol= None, thres_col=None, threshold_y = None, 
-    threshold_x_symmetric = None, thres_threscol = None, figsize=(12, 12), kind='scatter', fontsize='12',dot_size=10, title=None, 
+def plot_scatter_highlight(df, xcol = None, ycol= None, thres_col=None, threshold_y = None,
+    threshold_x_symmetric = None, thres_threscol = None, figsize=(12, 12), kind='scatter', fontsize='12',dot_size=10, title=None,
     fontsize_axis=20, fontsize_labels=13, alpha=0.5):
     '''
     Takes a df containing mutiple columns and plots scatter plot
@@ -1180,12 +1180,12 @@ def plot_scatter_highlight(df, xcol = None, ycol= None, thres_col=None, threshol
     from adjustText import adjust_text
 
     mpl.rcParams['xtick.labelsize'] = fontsize_axis
-    mpl.rcParams['ytick.labelsize'] = fontsize_axis 
-    mpl.rcParams['axes.titlesize'] = fontsize_axis 
-    mpl.rcParams['axes.labelsize'] = fontsize_axis 
+    mpl.rcParams['ytick.labelsize'] = fontsize_axis
+    mpl.rcParams['axes.titlesize'] = fontsize_axis
+    mpl.rcParams['axes.labelsize'] = fontsize_axis
 
     df_features = df.copy()
-    
+
     #pick genes that are at more extreme values than thresholds
     if threshold_x_symmetric:
         df_features = df_features[df_features[xcol].abs() > threshold_x_symmetric]
@@ -1205,14 +1205,14 @@ def plot_scatter_highlight(df, xcol = None, ycol= None, thres_col=None, threshol
     df_labels = df.loc[labels_list,:]
 
     fig, ax = plt.subplots(figsize=figsize)
-    
+
     #Plot all correlations
     ax = df.plot(xcol, ycol, kind=kind, ax=ax, s=dot_size, linewidth=0,color='#fee0d2', alpha=alpha)#orange:#8da0cb
     #Plot all correlations that pass threshold in blue
     #Plot most correlated and anticorrelated genes for each axis in red
     ax = df_features.plot(xcol, ycol, kind=kind, ax=ax, s=dot_size, linewidth=0,color='#de2d26')#orange:fc8d62
 
-    
+
     texts = []
     #where k is the index (gene name) and v are the columns (correlation values for each axis to plot)
     for  k, v in df_labels.iterrows():
@@ -1300,32 +1300,32 @@ def remove_dropout_genecount(df, dropout_val = 0):
     return df.replace(dropout_val, np.NaN, inplace=False)
 
 def correlation_pval(df_genes, series_ephys, method='ties', dropout_value=0):
-    '''df_genes: table with gene counts 
+    '''df_genes: table with gene counts
     series_ephys: series of one ephysiology value matched with df_genes
-    method: 'ties' applies tie correction but considers dropouts into correlation / 
+    method: 'ties' applies tie correction but considers dropouts into correlation /
     'omitdroput' filters dropouts and calculates correlation only in expressed cells without tie correction
     'pearsonr':calculates perason corr 'kendall' calculates kendall correlation '''
-    
+
     from scipy.stats.mstats import spearmanr
-    from scipy.stats import spearmanr as spearmanr2 
+    from scipy.stats import spearmanr as spearmanr2
     from scipy.stats import kendalltau
     from scipy.stats import pearsonr
     from statsmodels.sandbox.stats.multicomp import multipletests
-    
+
     a = df_genes.T.copy()
     b = series_ephys.copy()
-    
+
     if method is 'omitdropout':
         #remove dropouts from genecounts
         a = remove_dropout_genecount(df_genes, dropout_val = dropout_value).T.copy()
-        
+
         res = a.apply(lambda col: spearmanr2(col, b, nan_policy='omit'), axis=0)
         c = pd.DataFrame(res, columns=[b.name])[b.name].apply(pd.Series)
         c.rename(columns={0:'correlation', 1:"pval"}, inplace=True)
         c['pval_adj'] = multipletests(c['pval'], method='fdr_bh')[1]
         c.sort_values(by='pval',inplace=True)
         c['pval'] = c['pval'].astype(float)
-    
+
     if method is 'ties':
 
         res = a.apply(lambda col: spearmanr(col, b, use_ties=True), axis=0)
@@ -1352,7 +1352,7 @@ def correlation_pval(df_genes, series_ephys, method='ties', dropout_value=0):
         c['pval_adj'] = multipletests(c['pval'], method='fdr_bh')[1]
         c.sort_values(by='pval',inplace=True)
         c['pval'] = c['pval'].astype(float)
-                
+
     return c
 
 
@@ -1366,7 +1366,7 @@ def correlate_plots_scatter_subplots_cat(Dataset,
     color_data_order=None,
     subplots_rows=5,
     subplots_cols=4,
-    figsize=3, 
+    figsize=3,
     aspect=1,
     y_jitter=0.1,
     alpha=0.7,
@@ -1376,21 +1376,21 @@ def correlate_plots_scatter_subplots_cat(Dataset,
     s = Dataset.copy()
     genelist = dfcorr.index.tolist()
 
-    
+
     #make vector of genecounts and phenotype to plt
     s1 = s.samplesheet[phenotype]
     s2 = s.counts.loc[genelist]
     vec = pd.concat([s1, s2.T], axis=1, join='inner')
     vec.dropna(axis=0, how='any',inplace=True)
-    
+
     #add phenotype information for color
     vec2= pd.concat([vec, s.samplesheet[color_phenotype]],axis=1,join='inner')
     melted = vec2.melt(id_vars=[phenotype, color_phenotype], value_vars=genelist)
     melted.rename(columns={'value': 'log10(cpm)'},inplace=True)
     melted.rename(columns={phenotype: 'inactiv'},inplace=True)
-    sns.set(font_scale=1.5) 
-    
-    g = sns.lmplot(x='inactiv', y='log10(cpm)', data=melted, hue=color_phenotype, 
+    sns.set(font_scale=1.5)
+
+    g = sns.lmplot(x='inactiv', y='log10(cpm)', data=melted, hue=color_phenotype,
                    col='variable', palette='husl', col_wrap=subplots_cols, size=figsize, aspect=aspect, hue_order=color_data_order,
                    sharex=True, sharey=True, legend=True, legend_out=True, x_estimator=None,
                    fit_reg=False, y_jitter=y_jitter, scatter_kws={'alpha': alpha, 's': spoint})
@@ -1398,12 +1398,12 @@ def correlate_plots_scatter_subplots_cat(Dataset,
     for ax in g.axes.flat:
         #remove leading text from title
         ax.set_xlabel(' ')
-        gene_name = ax.get_title().replace('variable = ', '')   
-        ax.set_title(gene_name) 
+        gene_name = ax.get_title().replace('variable = ', '')
+        ax.set_title(gene_name)
         ax.text(x=0.7,y=0.9,s='r= {:1.2f}'.format(dfcorr.loc[gene_name, 'correlation']), fontsize=14, transform=ax.transAxes)
         ax.text(x=0.65,y=0.8,s=r'$p_{{val}}$= {:.1g}'.format(dfcorr.loc[gene_name, 'pval']), fontsize=14, transform=ax.transAxes)
     g.fig.text(0.4,0.01, phenotype,fontsize=14)
-    
+
     return g
 
 def filter_quantile_values(df, columns=None, qlow=0.1,qhigh=0.9, include_quantiles=True):
@@ -1412,15 +1412,15 @@ def filter_quantile_values(df, columns=None, qlow=0.1,qhigh=0.9, include_quantil
     qlow: minimum quantilie
     qhigh: maximum quantile
     columns: do filtering in subset of columns
-    include_quantiles: whether qlow and qhigh are included in the filtered dataset or removed 
+    include_quantiles: whether qlow and qhigh are included in the filtered dataset or removed
     (important for skewed distributions, with lots of zweros for instance)'''
-    
+
     df1 = df.copy()
     s =df1
     if columns:
         s = df1[columns]
 
-    if include_quantiles is True:        
+    if include_quantiles is True:
         s = s[s<=s.quantile(qhigh)]
         s = s[s>=s.quantile(qlow)]
     else:
@@ -1437,17 +1437,17 @@ def clip_quantile_values(df, columns=None, qlow=0.1,qhigh=0.9):
     qlow: minimum quantilie
     qhigh: maximum quantile
     columns: do filtering in subset of columns
-    include_quantiles: whether qlow and qhigh are included in the filtered dataset or removed 
+    include_quantiles: whether qlow and qhigh are included in the filtered dataset or removed
     (important for skewed distributions, with lots of zweros for instance)'''
-    
+
     df1 = df.copy()
     s =df1
     if columns:
         s = df1[columns]
-    
+
     s = s.clip(lower=s.quantile(qlow),upper=s.quantile(qhigh),axis=1)
-    
-    
+
+
    # df1[columns] = s
 
     return s
@@ -1465,9 +1465,35 @@ def df_standarize(df,columns,norm=True):
     ts = df[columns]
     if norm:
         ts = (ts - ts.mean()) / ts.std()
-        
+
     return ts
 
+
+def get_zscores(df, num_bin=20):
+
+    myMean = np.mean(df, axis=1)
+    myVar = np.var(df, axis=1)
+    bins = np.linspace(min(myMean), max(myMean), num_bin)
+
+    df["mean"] = myMean
+    df["var"] = myVar
+    df["mean_bin"] = pd.cut(myMean, bins, right=True, labels=list(range(1,len(bins))), include_lowest=True)
+
+    for _, group in df.groupby("mean_bin"):
+
+        myDispersion = np.log10(group["var"] / group["mean"])
+        myDispersionStd = np.std(myDispersion)
+
+        if myDispersionStd == 0: z_scores = np.zeros(len(group))
+
+        z_scores = (myDispersion - np.mean(myDispersion)) / myDispersionStd
+        df.loc[group.index, "z_score"] = z_scores
+
+    mean = df["mean"]
+    z_score = df["z_score"]
+    df.drop(["mean", "var", "mean_bin", "z_score"], axis=1, inplace=True) # clean up
+
+    return mean, z_score, df
 
 
 ######
@@ -1475,18 +1501,18 @@ def df_standarize(df,columns,norm=True):
 #####
 
 
-def tsne(df, n_dims=2, perplexity=30, metric='correlation', 
+def tsne(df, n_dims=2, perplexity=30, metric='correlation',
     rand_seed=0, early_exaggeration= 12.0, scale=True, **kwargs):
     '''t-SNE algorithm. Args:
     scale: Normalize to unit variance and mean 0 on columns of df (features are columns, cells are rows)
     This is the opposite than for counts tables!
-    
+
     n_dims (int): Number of dimensions to use.
     perplexity (float): Perplexity of the algorithm.
     early_exaggeration: standard 12.0, should not change much things
     rand_seed (int): Random seed. -1 randomizes each run.
     **kwargs: Named arguments passed to the t-SNE algorithm.'''
-        
+
     #from bhtsne import tsne
     from sklearn.manifold import TSNE
     from sklearn.preprocessing import StandardScaler
@@ -1497,30 +1523,30 @@ def tsne(df, n_dims=2, perplexity=30, metric='correlation',
 
     data = df.copy()
     X = data.values
-    
+
     if scale:
         X = StandardScaler().fit_transform(X)
-        
+
     Y = TSNE(n_components=2,
-             perplexity=perplexity, 
-             early_exaggeration=early_exaggeration, 
-             learning_rate=200.0, n_iter=1000, 
-             n_iter_without_progress=300, 
-             min_grad_norm=1e-07, 
-             metric=metric, 
-             init='random', 
-             verbose=0, 
-             random_state=rand_seed, 
-             method='barnes_hut', 
+             perplexity=perplexity,
+             early_exaggeration=early_exaggeration,
+             learning_rate=200.0, n_iter=1000,
+             n_iter_without_progress=300,
+             min_grad_norm=1e-07,
+             metric=metric,
+             init='random',
+             verbose=0,
+             random_state=rand_seed,
+             method='barnes_hut',
              angle=0.5).fit_transform(X, y=None)
-    
-    #Y = tsne(data=X, 
+
+    #Y = tsne(data=X,
     #         dimensions=n_dims,
     #         perplexity=perplexity,
     #         theta=theta,
     #         rand_seed=rand_seed,
     #         **kwargs)
-    
+
     vs = pd.DataFrame(Y, index=data.T.columns, columns=['dimension '+str(i+1) for i in range(n_dims)])
     return vs
 
@@ -1587,7 +1613,7 @@ def pca(df, n_dims=2, robust=True, random_state=None):
 ### Functions to plot phenotypes in groupped fashion
 
 
-def plot_phenotypes_cluster(df, col_plot='all' , group_col='group_tsne', 
+def plot_phenotypes_cluster(df, col_plot='all' , group_col='group_tsne',
                             groups_id=None,ncols=3,nrows=5,figsize=(13,10), plot_type='violin'):
     ''''Plots columns in dataframe based in one column that contains group information
     groups_plot is a list with columns to plot'''
@@ -1596,7 +1622,7 @@ def plot_phenotypes_cluster(df, col_plot='all' , group_col='group_tsne',
         columns = df_plot.columns.drop(group_col)
     else:
         columns = col_plot
-        
+
     if groups_id:
         df_plot = df_plot.loc[df[group_col].isin(groups_id),columns]#.join(res_tsne['group'])
     ncols=ncols
@@ -1607,7 +1633,7 @@ def plot_phenotypes_cluster(df, col_plot='all' , group_col='group_tsne',
 
     for i,col in enumerate(columns):
         if plot_type is 'violin':
-            axs[i] = sns.violinplot(x=group_col, y=col, ax=axs[i], 
+            axs[i] = sns.violinplot(x=group_col, y=col, ax=axs[i],
                                     data=df_plot,palette='husl', inner='sticks',color=0.8, split=True)
         elif plot_type =='boxplot':
             axs[i] = sns.boxplot(x=group_col, y=col, data=df_plot, color=".8", ax=axs[i])
@@ -1624,7 +1650,7 @@ def plot_phenotypes_cluster(df, col_plot='all' , group_col='group_tsne',
 
 
 #######
-### Functions to find clusters 
+### Functions to find clusters
 ########
 
 
@@ -1632,7 +1658,7 @@ def find_clusters_hdbscan(df , tsne_columns=['dimension 1', 'dimension 2'], min_
     '''df: is a dataframe (e.g. samplesheet with columns containing tsne coordinates)'''
     from sklearn.preprocessing import StandardScaler
     from hdbscan import HDBSCAN
-    
+
     X = df[tsne_columns].values
     X =StandardScaler().fit_transform(X)
     db = HDBSCAN(algorithm='best', metric=metric, min_cluster_size = min_cluster_size, min_samples= min_samples).fit(X)
@@ -1649,7 +1675,7 @@ def find_clusters_dbscan(df , tsne_columns=['dimension 1', 'dimension 2'], eps=0
     '''df: is a dataframe (e.g. samplesheet with columns containing tsne coordinates)'''
     from sklearn.preprocessing import StandardScaler
     from sklearn.cluster import DBSCAN
-    
+
     X = df[tsne_columns].values
     X =StandardScaler().fit_transform(X)
     db = DBSCAN(eps=eps, min_samples=min_samples, metric=metric).fit_predict(X)
@@ -1668,7 +1694,7 @@ def find_clusters_spectral(df , tsne_columns=['dimension 1', 'dimension 2'], n_c
     '''df: is a dataframe (e.g. samplesheet with columns containing tsne coordinates)'''
     from sklearn.preprocessing import StandardScaler
     from sklearn.cluster import SpectralClustering
-    
+
     X = df[tsne_columns].values
     X =StandardScaler().fit_transform(X)
     db = SpectralClustering(n_clusters=n_clusters).fit_predict(X)
@@ -1714,18 +1740,18 @@ def percent_expression_bootstrap_rows(df, n_iterations=100, thres=0):
     output = {}
     for i in range(n_iterations):
         s = resample(df, n_samples=n_size)#pd.DataFrame(df.values[np.random.randint(n_size, size=n_size)])
-        
-        output[i] = s.apply(lambda x: (x > thres).sum(axis=0)) / s.count(axis=0) 
+
+        output[i] = s.apply(lambda x: (x > thres).sum(axis=0)) / s.count(axis=0)
         #output[i] = s.apply(lambda x: (x > thres).sum(axis=0).mean(axis=0))
-        
-    s = pd.DataFrame.from_dict(output,orient='index') 
+
+    s = pd.DataFrame.from_dict(output,orient='index')
     mean = s.mean(axis=0)
     sd = s.std(axis=0)
     return mean, sd
 
-def percent_difference_expression_bootstrap_rows(df, n_iterations=100, thres=0, 
+def percent_difference_expression_bootstrap_rows(df, n_iterations=100, thres=0,
                                                  column_class='DiabetesStatus',categories=['healthy','T2D']):
-    '''Function takes a dataframe with float values of expression and calculates percent difference 
+    '''Function takes a dataframe with float values of expression and calculates percent difference
     in expression using bootstrap. Used to bootstrap percent difference of cells.
     df: dataframe where columns are genes and rows are cells
     thres: threshold of value to consider expressed'''
@@ -1739,14 +1765,14 @@ def percent_difference_expression_bootstrap_rows(df, n_iterations=100, thres=0,
         #from sklearn.utils import resample
         s = resample(df, n_samples=df.shape[0])
         r1 = s[s[column_class] == categories[0]].drop(column_class, axis=1)
-        x1 = r1.apply(lambda x: (x > thres).sum(axis=0)) / r1.count(axis=0) 
+        x1 = r1.apply(lambda x: (x > thres).sum(axis=0)) / r1.count(axis=0)
 
         r2 = s[s[column_class] == categories[1]].drop(column_class, axis=1)
-        x2 =r2.apply(lambda x: (x > thres).sum(axis=0)) / r2.count(axis=0) 
-        
+        x2 =r2.apply(lambda x: (x > thres).sum(axis=0)) / r2.count(axis=0)
+
         output[i] = x1-x2
 
-    s = pd.DataFrame.from_dict(output,orient='index') 
+    s = pd.DataFrame.from_dict(output,orient='index')
     mean = s.mean(axis=0)
     sd = s.std(axis=0)
     #compute pvalue from number of iterations in opposite direction of percent difference
@@ -1864,12 +1890,12 @@ class _RPCA:
 def find_parameter_name(filename, substring_pattern='beta_healthy_(.+?)_10'):
     import re
     m = re.search(substring_pattern,filename)
-    try: 
+    try:
         if m:
-            return m.group(1)                
+            return m.group(1)
     except:
         print("Name not found. Check substring pattern and filename")
-        
+
 def find_files_in_folder(folder, pattern='*.pickle'):
     import sys
     import os
@@ -1879,20 +1905,20 @@ def find_files_in_folder(folder, pattern='*.pickle'):
         for filename in fnmatch.filter(filenames, pattern):
             matches.append(root+"/"+filename) # full path of match
     return matches
-    
+
 def import_correlations_folder(dir_name,substring_pattern):
     '''reads a folder containing standard excel files with correlation results and imports again the original dictionary
     example dir_name='/Users/joan/Desktop/Stanford/pancreas_singlecell/notebooks/patchclamp/pclamp_3_ephys_diff/beta_cell_healthy_corr_results/'
     substring_pattern='beta_healthy_(.+?)_10' '''
     import pickle
     # helper functions
-    #get the full filename for files mathchin a name with a substring 
+    #get the full filename for files mathchin a name with a substring
     def find_parameter_name(filename, substring_pattern=substring_pattern):
         import re
         m = re.search(substring_pattern,filename)
-        try: 
+        try:
             if m:
-                return m.group(1)                
+                return m.group(1)
         except:
             print("Name not found. Check substring pattern and filename")
     #find pickled files within folder
@@ -1908,7 +1934,7 @@ def import_correlations_folder(dir_name,substring_pattern):
 
 
     dir_name = dir_name#'/Users/joan/Desktop/Stanford/pancreas_singlecell/notebooks/patchclamp/pclamp_3_ephys_diff/beta_cell_healthy_corr_results/'# directory containing STAR log output files (Log.final.out)
-    pattern_files = '*.pickle' 
+    pattern_files = '*.pickle'
     # Find all pickled files and save
     matches = find_files_in_folder(dir_name, pattern='*.pickle')
     #recover pickled dataframes into dictionary where name is each parameter
@@ -1916,7 +1942,7 @@ def import_correlations_folder(dir_name,substring_pattern):
     for file in matches:
         name = find_parameter_name(file, substring_pattern=substring_pattern)#'beta_healthy_(.+?)_10'
         with open(file, 'rb') as handle:
-            results_corr[name] = pickle.load(handle)  
+            results_corr[name] = pickle.load(handle)
     #return dictionary with all correlations
     return results_corr
 
@@ -1950,7 +1976,7 @@ def get_hub_genes(correlations_dict, column_use='zscore', thres_col=2, signed_zs
             elif signed_zscore=='both':
                 y = x[np.abs(x)>thres].count(axis=1)
             else:
-                raise ValueError('signed_zsvore not understood: positive, negative or both')    
+                raise ValueError('signed_zsvore not understood: positive, negative or both')
             #seen in at least one parameter
             z = y[y>0]
             ephysblocks_grouped[group] = z
@@ -1958,7 +1984,7 @@ def get_hub_genes(correlations_dict, column_use='zscore', thres_col=2, signed_zs
 
     #pick genes that are seen in at least n groups of parameters
     df_hub_genes = df_groupped_corr[(df_groupped_corr> n_groups).sum(axis=1) > 0]
-    
+
     return df_hub_genes
 
 def filter_correlation_table(dict_df, z_th = 2, zscore_raw=False, pct_th = 0., raw_corr_th=0., p_boot_th=1, n_feat=1, n_blocks=1, signed='both',
@@ -1982,12 +2008,12 @@ def filter_correlation_table(dict_df, z_th = 2, zscore_raw=False, pct_th = 0., r
         #select genes that pop up in more than n blocks
         new_index = counts_nodes[counts_nodes['groups']>=n_blocks].index
         return x.reindex(new_index)
-        
+
     if zscore_raw:
         zscore_col = 'zscore_raw_mean'
     else:
         zscore_col = 'zscore'
-        
+
     final_table = []
     if p_boot_th < 1:
         for i,name in enumerate(dict_df):
@@ -1995,36 +2021,36 @@ def filter_correlation_table(dict_df, z_th = 2, zscore_raw=False, pct_th = 0., r
                 cond = (dict_df[name][zscore_col] > z_th) &\
                 (np.abs(dict_df[name]['pct cells']) > pct_th) &\
                 (dict_df[name]['corr_raw_mean'] > raw_corr_th) &\
-                (np.abs(dict_df[name]['pval_bootstrap']) < p_boot_th) 
+                (np.abs(dict_df[name]['pval_bootstrap']) < p_boot_th)
             elif signed=='negative':
                 cond = (dict_df[name][zscore_col] < -z_th) &\
                 (np.abs(dict_df[name]['pct cells']) > pct_th) &\
                 (dict_df[name]['corr_raw_mean'] < -raw_corr_th) &\
-                (np.abs(dict_df[name]['pval_bootstrap']) < p_boot_th) 
+                (np.abs(dict_df[name]['pval_bootstrap']) < p_boot_th)
             elif signed=='both':
                 cond = (np.abs(dict_df[name][zscore_col]) > z_th) &\
                 (np.abs(dict_df[name]['pct cells']) > pct_th) &\
                 (np.abs(dict_df[name]['corr_raw_mean']) > raw_corr_th) &\
-                (np.abs(dict_df[name]['pval_bootstrap']) < p_boot_th) 
+                (np.abs(dict_df[name]['pval_bootstrap']) < p_boot_th)
             else:
                 raise ValueError('signed must be positive, negative, or both.')
 
             final_table.append(pd.DataFrame(dict_df[name].loc[cond, 'zscore'].rename(name)))
-            
+
     else:
         for i,name in enumerate(dict_df):
             if signed=='positive':
                 cond = (dict_df[name][zscore_col] > z_th) &\
                 (np.abs(dict_df[name]['pct cells']) > pct_th) &\
-                (dict_df[name]['corr_raw_mean'] > raw_corr_th) 
+                (dict_df[name]['corr_raw_mean'] > raw_corr_th)
             elif signed=='negative':
                 cond = (dict_df[name][zscore_col] < -z_th) &\
                 (np.abs(dict_df[name]['pct cells']) > pct_th) &\
-                (dict_df[name]['corr_raw_mean'] < -raw_corr_th)  
+                (dict_df[name]['corr_raw_mean'] < -raw_corr_th)
             elif signed=='both':
                 cond = (np.abs(dict_df[name][zscore_col]) > z_th) &\
                 (np.abs(dict_df[name]['pct cells']) > pct_th) &\
-                (np.abs(dict_df[name]['corr_raw_mean']) > raw_corr_th) 
+                (np.abs(dict_df[name]['corr_raw_mean']) > raw_corr_th)
             else:
                 raise ValueError('signed must be positive, negative, or both.')
 
@@ -2032,13 +2058,13 @@ def filter_correlation_table(dict_df, z_th = 2, zscore_raw=False, pct_th = 0., r
 
     #table with all correlations passing threshold
     x = pd.concat(final_table, axis=1).fillna(0)
-    
+
     #filter for genes correlated to a number of parameters
     cond_corr = np.abs(x)>0
     x = x[x[cond_corr].count(axis=1) >= n_feat]
-    
+
     x = get_nodes_from_table(x, n_blocks)
-    
+
     return x
 
 
@@ -2048,7 +2074,7 @@ def percent_exp(x):
 
 def logmean(df, base=2, pseudocount=1):
     return np.log2(pseudocount+(base**df-pseudocount).mean(axis=1))
-    
+
 
 def get_all_zscores(dict_df,indexes):
     cols_order = ['Cell size', 'Total Exocitosis', 'Late exocytosis', 'Early exocytosis', 'Exocytosis norm Ca2+',  'Ca2+ entry','Early Ca2+ current', 'Late Ca2+ current', 'Late Ca2+ Conductance', 'Peak Na+ current','Na+ conductance']
@@ -2059,7 +2085,7 @@ def get_all_zscores(dict_df,indexes):
     return x_all
 
 
-def df_get_mu_pvals(df, pars, column_class='DiabetesStatus',categories=['healthy','T2D']):    
+def df_get_mu_pvals(df, pars, column_class='DiabetesStatus',categories=['healthy','T2D']):
     from scipy.stats import mannwhitneyu
     from scipy.stats import ks_2samp
     from statsmodels.sandbox.stats.multicomp import multipletests
@@ -2103,4 +2129,3 @@ def make_bulk_notnotnormalized_sc(ds,columns_split=['DonorID','cell_type','Diabe
     df.columns = ['%s%s%s' % (a, '|%s' % b, '|%s' % c) for a, b, c in df.columns]
     df.fillna(0,inplace=True)
     return df
-
